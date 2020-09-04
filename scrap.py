@@ -49,11 +49,12 @@ def get_detail(url):
         'stock': stock,
         'categories': categories,
     }
+    'Create JSON file'
     with open(f'./results/{url.replace("https://gundamnesia.com/shop/", "").replace("/", "-")}.json', 'w') as outfile:
         json.dump(dict_data, outfile)
 
 
-def creat_csv():
+def creat_csv_excel():
     print('Creating CSV...')
     datas = []
     files = glob.glob('./results/*.json')
@@ -62,24 +63,36 @@ def creat_csv():
         with open(file) as json_file:
             data = json.load(json_file)
             datas.append(data)
+
+    'Create csv data'
     df = pd.DataFrame(datas)
     df.to_csv('results.csv', index=False)
+
+    'Create xlsx Data'
+    df = pd.DataFrame(datas)
+    writer = pd.ExcelWriter('results.xlsx', engine='xlsxwriter')
+
+    df.to_excel(writer, sheet_name='Sheet1', index=False)
+    writer.save()
 
 
 def run():
     total_page = total_pages()
     total_urls = []
+
     for x in range(total_page):
         x += 1
         urls = get_url(x)
         total_urls += urls
 
+    'Read JSON file'
     with open('urls.json') as json_file:
         urls = json.load(json_file)
+
     for url in urls:
         get_detail(url)
 
-    creat_csv()
+    creat_csv_excel()
 
 
 if __name__ == '__main__':

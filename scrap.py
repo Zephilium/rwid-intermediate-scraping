@@ -11,9 +11,16 @@ def total_pages():
     print('Total Pages')
     respons = session.get('https://gundamnesia.com/shop')
     soup = BeautifulSoup(respons.text, features='html.parser')
-    page_item = soup.find_all('a', attrs={'class': 'page-numbers'})
+    page_item = soup.find('ul', attrs={'class': 'page-numbers'})
+    pages = []
 
-    return len(page_item) - 2
+    for items in page_item.find_all('a'):
+        item = items.get_text()
+        pages.append(item)
+
+    del pages[-1]
+    last_pages = pages[-1]
+    return int(last_pages)
 
 
 def get_url(pages):
@@ -84,6 +91,10 @@ def run():
         x += 1
         urls = get_url(x)
         total_urls += urls
+
+    'Write JSON file'
+    with open('urls.json', 'w') as outfile:
+        json.dump(total_urls, outfile)
 
     'Read JSON file'
     with open('urls.json') as json_file:
